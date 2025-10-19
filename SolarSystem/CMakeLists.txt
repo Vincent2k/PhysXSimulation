@@ -11,6 +11,7 @@ endif()
 
 target_link_libraries(SolarSystem
     PhysX
+    Snippet
 )
 
 if (CMAKE_IMPORT_LIBRARY_SUFFIX)

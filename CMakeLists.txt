@@ -5,7 +5,8 @@ cmake_minimum_required (VERSION 3.8)
 
 option(PHYSX_BUILD_TYPE "The build type of PhysX, i.e., one of {debug, checked, profile, release}" "checked")
 
-include_directories(${PHYSX_ROOT_DIR}/include)
+include_directories(${PHYSX_ROOT_DIR}/include ${PHYSX_ROOT_DIR}/snippets ${PHYSX_ROOT_DIR}/snippets/graphics/include C:/packman-repo/chk/freeglut-windows/3.4_1.1/include)
+
 
 # Activez Rechargement à chaud pour les compilateurs MSVC si cela est pris en charge.
 if (POLICY CMP0141)
@@ -33,6 +34,9 @@ add_library(physx_foundation SHARED IMPORTED)
 add_library(physx_extensions SHARED IMPORTED)
 add_library(physx_pvd_sdk SHARED IMPORTED)
 add_library(physx_common SHARED IMPORTED)
+add_library(snippet_render SHARED IMPORTED)
+add_library(freeglut SHARED IMPORTED)
+
 
 if(CMAKE_BUILD_TYPE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     message("Building snippet in debug configuration")
@@ -43,6 +47,12 @@ if(CMAKE_BUILD_TYPE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_static_physx_lib(physx_extensions debug PhysXExtensions_static_64)
     add_static_physx_lib(physx_pvd_sdk debug PhysXPvdSDK_static_64)
     add_physx_lib(physx_common debug PhysXCommon_64)
+    add_static_physx_lib(snippet_render debug SnippetRender_static_64)
+
+    set_target_properties(freeglut PROPERTIES
+        IMPORTED_LOCATION  "${PHYSX_ROOT_DIR}/bin/win.x86_64.vc143.md/debug/freeglutd.dll"
+        IMPORTED_IMPLIB   "C:/packman-repo/chk/freeglut-windows/3.4_1.1/lib/win64/freeglutd.lib"
+    )
 else()
     message("Building snippet in release configuration with PhysX ${PHYSX_BUILD_TYPE} configuration")
     add_compile_definitions(NDEBUG)
@@ -62,6 +72,12 @@ target_link_libraries(PhysX INTERFACE
     physx_extensions
     physx_pvd_sdk
     physx_common
+)
+
+add_library(Snippet INTERFACE IMPORTED)
+target_link_libraries(Snippet INTERFACE
+    snippet_render
+    freeglut
 )
 
 # Incluez les sous-projets.

@@ -27,7 +27,7 @@ namespace Rendering
 		{
 			PxArray<PxRigidActor*> actors(nbActors);
 			scene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC, reinterpret_cast<PxActor**>(&actors[0]), nbActors);
-			Snippets::renderActors(&actors[0], static_cast<PxU32>(actors.size()), true);
+			Snippets::renderActors(&actors[0], static_cast<PxU32>(actors.size()), false);
 		}
 
 		Snippets::finishRender();
@@ -35,7 +35,7 @@ namespace Rendering
 
 	void renderPhysX(KeyboardCallback kbcb, ExitCallback excb)
 	{
-		sCamera = new Snippets::Camera(PxVec3(50.0f, 50.0f, 50.0f), PxVec3(-0.6f, -0.2f, -0.7f));
+		sCamera = new Snippets::Camera(PxVec3(100.0f, 50.0f, 100.0f), PxVec3(-0.6f, -0.2f, -0.7f));
 
 		Snippets::setupDefault("PhysX Solar system", sCamera, kbcb, renderCallback, excb);
 

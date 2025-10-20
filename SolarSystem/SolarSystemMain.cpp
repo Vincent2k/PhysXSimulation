@@ -26,7 +26,7 @@ void keyPress(unsigned char key, const PxTransform& camera)
 
 void stepPhysics(bool interactive)
 {
-
+	solarSystem->advance();
 }
 
 void exitCallback()
@@ -37,6 +37,12 @@ void exitCallback()
 int main()
 {
 	solarSystem = Factory::CreateSolarSystem();
+	solarSystem->addPlanet(1, PxTransform(PxVec3(0, 0, 0)), 10);
+	solarSystem->addPlanet(2, PxTransform(PxVec3(0, 0, 40)), 10);
+
+	solarSystem->setPlanetMass(1, 20);
+
 	Rendering::renderPhysX(keyPress, exitCallback);
+
 	return 0;
 }

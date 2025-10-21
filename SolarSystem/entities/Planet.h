@@ -1,4 +1,5 @@
 #include "PxPhysicsAPI.h"
+#include <vector>
 
 #ifndef PLANET_H
 #define PLANET_H
@@ -31,12 +32,13 @@ public:
 
 	void setMass(float mass)
 	{
+		this->rBody->setMass(mass);
 		this->configurations.mass = mass;
 	}
 
-	void applyGravity(Planet& targetPlanet)
+	void applyGravitationalForce(PxVec3 force)
 	{
-		
+		this->rBody->addForce(force, PxForceMode::eFORCE);
 	}
 };
 

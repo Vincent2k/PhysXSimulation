@@ -14,6 +14,10 @@ private:
 	PxPhysics* physics;
 	PxScene* scene;
 	std::map<int, Planet> planets;
+
+	void applyGravitationalForces();
+	PxVec3 calculateForceBtwPlanets(Planet p1, Planet p2);
+
 public:
 	SolarSystem(PxPhysics* physics)
 	{
@@ -22,7 +26,6 @@ public:
 	}
 	void advance();
 	void addPlanet(int id, PxTransform position, PxReal radius);
-
 	void setPlanetMass(int id, float mass);
 };
 #endif

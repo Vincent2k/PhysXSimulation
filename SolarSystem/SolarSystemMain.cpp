@@ -13,6 +13,7 @@ using namespace physx;
 using namespace std;
 
 static SolarSystem* solarSystem;
+static bool paused = false;
 
 void cleanupPhysics(bool /*interactive*/)
 {
@@ -21,12 +22,18 @@ void cleanupPhysics(bool /*interactive*/)
 
 void keyPress(unsigned char key, const PxTransform& camera)
 {
-	
+	if (key == ' ')
+	{
+		paused = !paused;
+	}
 }
 
 void stepPhysics(bool interactive)
 {
-	solarSystem->advance();
+	if (!paused)
+	{
+		solarSystem->advance();
+	}
 }
 
 void exitCallback()
@@ -38,9 +45,10 @@ int main()
 {
 	solarSystem = Factory::CreateSolarSystem();
 	solarSystem->addPlanet(1, PxTransform(PxVec3(0, 0, 0)), 10);
-	solarSystem->addPlanet(2, PxTransform(PxVec3(0, 0, 40)), 10);
+	solarSystem->addPlanet(2, PxTransform(PxVec3(0, 0, 200)), 10);
 
 	solarSystem->setPlanetMass(1, 20);
+	solarSystem->setPlanetMass(2, 40);
 
 	Rendering::renderPhysX(keyPress, exitCallback);
 

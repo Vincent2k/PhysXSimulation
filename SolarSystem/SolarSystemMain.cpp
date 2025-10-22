@@ -13,7 +13,7 @@ using namespace physx;
 using namespace std;
 
 static SolarSystem* solarSystem;
-static bool paused = false;
+static bool paused = true;
 
 void cleanupPhysics(bool /*interactive*/)
 {
@@ -44,11 +44,29 @@ void exitCallback()
 int main()
 {
 	solarSystem = Factory::CreateSolarSystem();
-	solarSystem->addPlanet(1, PxTransform(PxVec3(0, 0, 0)), 10);
-	solarSystem->addPlanet(2, PxTransform(PxVec3(0, 0, 200)), 10);
 
-	solarSystem->setPlanetMass(1, 20);
-	solarSystem->setPlanetMass(2, 40);
+	// Suns
+	solarSystem->addPlanet(1, PxTransform(PxVec3(0, 0, 0)), 50);
+	solarSystem->addPlanet(2, PxTransform(PxVec3(0, 0, 500)), 50);
+	
+	solarSystem->addPlanet(3, PxTransform(PxVec3(0, 300, 400)), 15);
+	solarSystem->addPlanet(4, PxTransform(PxVec3(200, -300, -400)), 15);
+	solarSystem->addPlanet(5, PxTransform(PxVec3(0, -300, 400)), 15);
+	solarSystem->addPlanet(6, PxTransform(PxVec3(0, 300, -400)), 15);
+	solarSystem->addPlanet(7, PxTransform(PxVec3(200, -100, 600)), 15);
+	solarSystem->addPlanet(8, PxTransform(PxVec3(300, 500 , -250)), 15);
+
+	solarSystem->setPlanetMass(1, 5000000);
+	solarSystem->setPlanetMass(2, 5000000);
+	solarSystem->setPlanetMass(3, 30);
+	solarSystem->setPlanetMass(4, 450);
+	solarSystem->setPlanetMass(5, 300);
+	solarSystem->setPlanetMass(6, 1000);
+	solarSystem->setPlanetMass(7, 2000);
+	solarSystem->setPlanetMass(8, 400);
+
+	solarSystem->setPlanetLineaireVelocity(1, PxVec3(0, 0, -100));
+	solarSystem->setPlanetLineaireVelocity(2, PxVec3(0, 0, -50));
 
 	Rendering::renderPhysX(keyPress, exitCallback);
 

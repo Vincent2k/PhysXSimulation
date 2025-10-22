@@ -2,6 +2,10 @@
 #include "PxPhysicsAPI.h"
 #include "Planet.h"
 #include <vector>
+#include <cmath>
+
+
+const float G_CONSTANT = 0.6674f;
 
 void SolarSystem::advance()
 {
@@ -26,9 +30,18 @@ void SolarSystem::addPlanet(int id, PxTransform position, PxReal radius)
 
 void SolarSystem::setPlanetMass(int id, float mass)
 {
-	auto config = this->planets.at(id).getConfigurations();
+	if (this->planets.contains(id))
+	{
+		this->planets.at(id).setMass(mass);
+	}
+}
 
-	this->planets.at(id).setMass(mass);
+void SolarSystem::setPlanetLineaireVelocity(int id, PxVec3 velocity)
+{
+	if (this - planets.contains(id))
+	{
+		this->planets.at(id).setLineaireVelocity(velocity);
+	}
 }
 
 void SolarSystem::applyGravitationalForces()
@@ -69,5 +82,13 @@ void SolarSystem::applyGravitationalForces()
 
 PxVec3 SolarSystem::calculateForceBtwPlanets(Planet p1, Planet p2)
 {
-	return PxVec3(0, 0, 400);
+	auto massProduct = p1.getMass() * p2.getMass();
+
+	auto positionDiff = p2.getGlobalPosition() - p1.getGlobalPosition();
+	auto distance = positionDiff.magnitude();
+
+	auto forceMagnitute = -((G_CONSTANT * massProduct) / pow(distance, 3));
+	auto force = positionDiff * forceMagnitute;
+
+	return -force;
 }

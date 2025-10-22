@@ -40,6 +40,21 @@ public:
 	{
 		this->rBody->addForce(force, PxForceMode::eFORCE);
 	}
+
+	float getMass() 
+	{
+		return this->rBody->getMass();
+	}
+
+	PxVec3 getGlobalPosition()
+	{
+		return this->rBody->getGlobalPose().p;
+	}
+
+	void setLineaireVelocity(PxVec3 velocity) 
+	{
+		this->rBody->setLinearVelocity(velocity);
+	}
 };
 
 #endif

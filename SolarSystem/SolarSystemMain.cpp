@@ -65,8 +65,8 @@ int main()
 	solarSystem->setPlanetMass(7, 2000);
 	solarSystem->setPlanetMass(8, 400);
 
-	solarSystem->setPlanetLineaireVelocity(1, PxVec3(0, 0, -100));
-	solarSystem->setPlanetLineaireVelocity(2, PxVec3(0, 0, -50));
+	solarSystem->setPlanetLinearVelocity(1, PxVec3(0, 0, -100));
+	solarSystem->setPlanetLinearVelocity(2, PxVec3(0, 0, -50));
 
 	Rendering::renderPhysX(keyPress, exitCallback);
 

@@ -51,7 +51,7 @@ public:
 		return this->rBody->getGlobalPose().p;
 	}
 
-	void setLineaireVelocity(PxVec3 velocity) 
+	void setLinearVelocity(PxVec3 velocity)
 	{
 		this->rBody->setLinearVelocity(velocity);
 	}

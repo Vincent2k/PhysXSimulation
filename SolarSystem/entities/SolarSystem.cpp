@@ -36,11 +36,11 @@ void SolarSystem::setPlanetMass(int id, float mass)
 	}
 }
 
-void SolarSystem::setPlanetLineaireVelocity(int id, PxVec3 velocity)
+void SolarSystem::setPlanetLinearVelocity(int id, PxVec3 velocity)
 {
-	if (this - planets.contains(id))
+	if (this->planets.contains(id))
 	{
-		this->planets.at(id).setLineaireVelocity(velocity);
+		this->planets.at(id).setLinearVelocity(velocity);
 	}
 }
 

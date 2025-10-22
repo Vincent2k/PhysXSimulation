@@ -36,6 +36,6 @@ public:
 	/// <param name="radius">The planet radius</param>
 	void addPlanet(int id, PxTransform position, PxReal radius);
 	void setPlanetMass(int id, float mass);
-	void setPlanetLineaireVelocity(int id, PxVec3 velicity);
+	void setPlanetLinearVelocity(int id, PxVec3 velicity);
 };
 #endif

@@ -9,8 +9,16 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET SolarSystem PROPERTY CXX_STANDARD 20)
 endif()
 
+add_library(raylib SHARED IMPORTED)
+set_target_properties(raylib PROPERTIES
+    IMPORTED_LOCATION  "${RAYLIB_ROOT_DIR}/lib/raylib.dll"
+    IMPORTED_IMPLIB   "${RAYLIB_ROOT_DIR}/lib/raylibdll.lib"
+)
+
+
 target_link_libraries(SolarSystem
     PhysX
+    raylib
     Snippet
 )
 

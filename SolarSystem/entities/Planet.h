@@ -16,13 +16,15 @@ class Planet
 private:
 	PxRigidDynamic* rBody;
 	PlanetConfigurations configurations;
+	float radius = 1.0f;
 
 public:
-	Planet(PxRigidDynamic* rBody)
+	Planet(PxRigidDynamic* rBody, float radius)
 	{
 		this->rBody = rBody;
 		this->rBody->setMass(0);
 		this->configurations.mass = 0;
+		this->radius = radius;
 	}
 
 	const PlanetConfigurations getConfigurations()
@@ -44,6 +46,11 @@ public:
 	float getMass() 
 	{
 		return this->rBody->getMass();
+	}
+
+	float getRadius() 
+	{
+		return this->radius;
 	}
 
 	PxVec3 getGlobalPosition()

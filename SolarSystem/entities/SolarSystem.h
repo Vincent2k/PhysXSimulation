@@ -37,5 +37,7 @@ public:
 	void addPlanet(int id, PxTransform position, PxReal radius);
 	void setPlanetMass(int id, float mass);
 	void setPlanetLinearVelocity(int id, PxVec3 velicity);
+
+	Planet getPlanet(int id);
 };
 #endif

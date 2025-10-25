@@ -5,7 +5,11 @@ cmake_minimum_required (VERSION 3.8)
 
 option(PHYSX_BUILD_TYPE "The build type of PhysX, i.e., one of {debug, checked, profile, release}" "checked")
 
-include_directories(${PHYSX_ROOT_DIR}/include ${PHYSX_ROOT_DIR}/snippets ${PHYSX_ROOT_DIR}/snippets/graphics/include C:/packman-repo/chk/freeglut-windows/3.4_1.1/include)
+include_directories(${PHYSX_ROOT_DIR}/include
+    ${PHYSX_ROOT_DIR}/snippets
+    ${PHYSX_ROOT_DIR}/snippets/graphics/include
+    ${RAYLIB_ROOT_DIR}/include
+    C:/packman-repo/chk/freeglut-windows/3.4_1.1/include)
 
 
 # Activez Rechargement à chaud pour les compilateurs MSVC si cela est pris en charge.
@@ -79,6 +83,5 @@ target_link_libraries(Snippet INTERFACE
     snippet_render
     freeglut
 )
-
 # Incluez les sous-projets.
 add_subdirectory ("SolarSystem")

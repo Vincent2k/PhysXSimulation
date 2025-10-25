@@ -10,7 +10,8 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "cl.exe",
         "CMAKE_CXX_COMPILER": "cl.exe",
-        "PHYSX_ROOT_DIR": "C:/SDK/PhysX/physx"
+        "PHYSX_ROOT_DIR": "C:/SDK/PhysX/physx",
+        "RAYLIB_ROOT_DIR": "C:/SDK/raylib-5.0_win64_msvc16"
       },
       "condition": {
         "type": "equals",

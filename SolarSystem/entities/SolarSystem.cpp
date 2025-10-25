@@ -5,7 +5,7 @@
 #include <cmath>
 
 
-const float G_CONSTANT = 0.6674f;
+const float G_CONSTANT = 0.006674f;
 
 void SolarSystem::advance()
 {
@@ -24,7 +24,7 @@ void SolarSystem::addPlanet(int id, PxTransform position, PxReal radius)
 
 	this->scene->addActor(*dynamic);
 
-	auto planet = Planet(dynamic);
+	auto planet = Planet(dynamic, radius);
 	this->planets.insert(std::pair{ id, planet });
 }
 
@@ -87,8 +87,13 @@ PxVec3 SolarSystem::calculateForceBtwPlanets(Planet p1, Planet p2)
 	auto positionDiff = p2.getGlobalPosition() - p1.getGlobalPosition();
 	auto distance = positionDiff.magnitude();
 
-	auto forceMagnitute = -((G_CONSTANT * massProduct) / pow(distance, 3));
+	auto forceMagnitute = -((G_CONSTANT * massProduct) / (float)pow(distance, 3));
 	auto force = positionDiff * forceMagnitute;
 
 	return -force;
+}
+
+Planet SolarSystem::getPlanet(int id)
+{
+	return this->planets.at(id);
 }

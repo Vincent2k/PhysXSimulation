@@ -15,7 +15,7 @@ void SolarSystem::advance()
 	this->scene->fetchResults(true);
 }
 
-void SolarSystem::addPlanet(int id, PxTransform position, PxReal radius)
+void SolarSystem::addPlanet(int id, PxTransform position, PxReal radius, bool isSun)
 {
 	auto material = this->physics->createMaterial(0.5f, 0.5f, 0.2f);
 
@@ -24,7 +24,7 @@ void SolarSystem::addPlanet(int id, PxTransform position, PxReal radius)
 
 	this->scene->addActor(*dynamic);
 
-	auto planet = Planet(dynamic, radius);
+	auto planet = Planet(dynamic, radius, isSun);
 	this->planets.insert(std::pair{ id, planet });
 }
 
@@ -96,4 +96,16 @@ PxVec3 SolarSystem::calculateForceBtwPlanets(Planet p1, Planet p2)
 Planet SolarSystem::getPlanet(int id)
 {
 	return this->planets.at(id);
+}
+
+std::vector<const Planet*> SolarSystem::getPlanets()
+{
+	std::vector<const Planet*> planets;
+
+	for (const auto& planet : this->planets)
+	{
+		planets.push_back(&planet.second);
+	}
+
+	return planets;
 }

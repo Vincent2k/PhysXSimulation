@@ -1,7 +1,7 @@
 #include "PxPhysicsAPI.h"
 #include "Planet.h"
-
 #include <map>
+#include <vector>
 
 #ifndef SOLAR_SYSTEM_H
 #define SOLAR_SYSTEM_H
@@ -34,10 +34,11 @@ public:
 	/// <param name="id">The planet identifier</param>
 	/// <param name="position">The planet global position</param>
 	/// <param name="radius">The planet radius</param>
-	void addPlanet(int id, PxTransform position, PxReal radius);
+	void addPlanet(int id, PxTransform position, PxReal radius, bool isSun = false);
 	void setPlanetMass(int id, float mass);
 	void setPlanetLinearVelocity(int id, PxVec3 velicity);
 
 	Planet getPlanet(int id);
+	std::vector<const Planet*> getPlanets();
 };
 #endif

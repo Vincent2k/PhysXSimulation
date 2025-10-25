@@ -12,26 +12,13 @@
 #include <math.h>
 
 void DrawSphereBasic(Color color);
-void DrawPlanet(Planet planet, Color color);
+void DrawPlanet(Planet planet);
 
 using namespace physx;
 using namespace std;
 
 static SolarSystem* solarSystem;
 static bool paused = true;
-
-void cleanupPhysics(bool /*interactive*/)
-{
-	Factory::ReleaseSolarSystem(solarSystem);
-}
-
-void keyPress(unsigned char key, const PxTransform& camera)
-{
-	if (key == ' ')
-	{
-		paused = !paused;
-	}
-}
 
 void stepPhysics(bool interactive)
 {
@@ -41,18 +28,13 @@ void stepPhysics(bool interactive)
 	}
 }
 
-void exitCallback()
-{
-	cleanupPhysics(true);
-}
-
 void initSolarSystem()
 {
 	solarSystem = Factory::CreateSolarSystem();
 
 	// Suns
-	solarSystem->addPlanet(1, PxTransform(PxVec3(0, 0, 0)), 10);
-	solarSystem->addPlanet(2, PxTransform(PxVec3(0, 0, 50)), 10);
+	solarSystem->addPlanet(1, PxTransform(PxVec3(0, 0, 0)), 10, true);
+	solarSystem->addPlanet(2, PxTransform(PxVec3(0, 0, 50)), 10, true);
 
 	solarSystem->addPlanet(3, PxTransform(PxVec3(0, 30, 30)), 2);
 	solarSystem->addPlanet(4, PxTransform(PxVec3(20, -30, -40)), 2);
@@ -62,7 +44,7 @@ void initSolarSystem()
 	solarSystem->addPlanet(8, PxTransform(PxVec3(30, 50, -25)), 2);
 
 	solarSystem->setPlanetMass(1, 500000);
-	solarSystem->setPlanetMass(2, 500000);
+	solarSystem->setPlanetMass(2, 5000000);
 	solarSystem->setPlanetMass(3, 30);
 	solarSystem->setPlanetMass(4, 30);
 	solarSystem->setPlanetMass(5, 30);
@@ -70,7 +52,7 @@ void initSolarSystem()
 	solarSystem->setPlanetMass(7, 30);
 	solarSystem->setPlanetMass(8, 30);
 
-	solarSystem->setPlanetLinearVelocity(1, PxVec3(0, 0, -0.4));
+	solarSystem->setPlanetLinearVelocity(1, PxVec3(0, 0, -20));
 	solarSystem->setPlanetLinearVelocity(2, PxVec3(0, 0, 0));
 }
 
@@ -78,74 +60,80 @@ int main()
 {
 	initSolarSystem();
 
-
-	// Initialization
-	//--------------------------------------------------------------------------------------
 	const int screenWidth = 1900;
 	const int screenHeight = 900;
 
-	const float sunRadius = 4.0f;
-	const float earthRadius = 0.6f;
-	const float earthOrbitRadius = 8.0f;
-	const float moonRadius = 0.16f;
-	const float moonOrbitRadius = 1.5f;
+	auto cameraSpeed = 50.0f;
 
 	InitWindow(screenWidth, screenHeight, "raylib [models] example - rlgl solar system");
 
-	// Define the camera to look into our 3d world
 	Camera camera = { 0 };
-	camera.position = Vector3{ 104.0f, 69.0f, 36.0f }; // Camera position
-	camera.target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
-	camera.up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
-	camera.fovy = 45.0f;                                // Camera field-of-view Y
-	camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
+	camera.position = Vector3{ 104.0f, 69.0f, 36.0f };
+	camera.target = Vector3{ 0.0f, 0.0f, 0.0f };
+	camera.up = Vector3{ 0.0f, 1.0f, 0.0f };
+	camera.fovy = 45.0f;
+	camera.projection = CAMERA_PERSPECTIVE;
 
-	float rotationSpeed = 0.2f;         // General system rotation speed
-
-	float earthRotation = 0.0f;         // Rotation of earth around itself (days) in degrees
-	float earthOrbitRotation = 0.0f;    // Rotation of earth around the Sun (years) in degrees
-	float moonRotation = 0.0f;          // Rotation of moon around itself
-	float moonOrbitRotation = 0.0f;     // Rotation of moon around earth in degrees
-
-	SetTargetFPS(60);                   // Set our game to run at 60 frames-per-second
-	//--------------------------------------------------------------------------------------
+	int currentGesture = GESTURE_NONE;
+	int lastGesture = GESTURE_NONE;
+	
+	SetTargetFPS(60);
 
 	int counter = 0;
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+	bool dragging = false;
+
+	auto planets = solarSystem->getPlanets();
+
+    while (!WindowShouldClose())
     {
+		lastGesture = currentGesture;
+		currentGesture = GetGestureDetected();
+
+		if (currentGesture != lastGesture)
+		{
+			switch (currentGesture)
+			{
+				case GESTURE_TAP: dragging = true; break;
+				case GESTURE_HOLD: dragging = true; break;
+				case GESTURE_DRAG: dragging = true; break;
+				case GESTURE_NONE: dragging = false; break;
+				default: break;
+			}
+		}
+
 		stepPhysics(false);
 		
-		// Update
-	   //----------------------------------------------------------------------------------
+		auto previousCameraTarget = camera.target;
+		auto previousCameraPosition = camera.position;
 		UpdateCamera(&camera, CAMERA_FREE);
 
+		auto xDiff = previousCameraPosition.x - camera.position.x;
+		auto yDiff = previousCameraPosition.y - camera.position.y;
+		auto zDiff = previousCameraPosition.z - camera.position.z;
+
+		if (IsKeyDown(KEY_W) || IsKeyDown(KEY_A) || IsKeyDown(KEY_S) || IsKeyDown(KEY_D))
+		{
+			camera.position = Vector3{ camera.position.x + (xDiff * -cameraSpeed), camera.position.y + (yDiff * -cameraSpeed), camera.position.z + (zDiff * -cameraSpeed) };
+		}
+
+		if (!dragging)
+		{
+			camera.target = previousCameraTarget;
+		}
+		
 		if (IsKeyPressed(KEY_Z)) camera.target = Vector3{ 0.0f, 0.0f, 0.0f };
 		if (IsKeyPressed(KEY_SPACE)) paused = !paused;
-
-		earthRotation += (5.0f * rotationSpeed);
-		earthOrbitRotation += (365 / 360.0f * (5.0f * rotationSpeed) * rotationSpeed);
-		moonRotation += (2.0f * rotationSpeed);
-		moonOrbitRotation += (8.0f * rotationSpeed);
-		//----------------------------------------------------------------------------------
-
-		// Draw
-		//----------------------------------------------------------------------------------
+	
 		BeginDrawing();
 
 		ClearBackground(BLACK);
 
 		BeginMode3D(camera);
 
-		DrawPlanet(solarSystem->getPlanet(1), GOLD);
-		DrawPlanet(solarSystem->getPlanet(2), GOLD);
-
-		DrawPlanet(solarSystem->getPlanet(3), BLUE);
-		DrawPlanet(solarSystem->getPlanet(4), BLUE);
-		DrawPlanet(solarSystem->getPlanet(5), BLUE);
-		DrawPlanet(solarSystem->getPlanet(6), BLUE);
-		DrawPlanet(solarSystem->getPlanet(7), BLUE);
-		DrawPlanet(solarSystem->getPlanet(8), BLUE);
+		for (auto planet : planets)
+		{
+			DrawPlanet(*planet);
+		}
 
 		EndMode3D();
 
@@ -153,25 +141,23 @@ int main()
 		DrawFPS(10, 10);
 
 		EndDrawing();
-		//----------------------------------------------------------------------------------
     }
 
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
+    CloseWindow();
+
+	Factory::ReleaseSolarSystem(solarSystem);
 
 	return 0;
 }
 
 
-void DrawPlanet(Planet planet, Color color)
+void DrawPlanet(Planet planet)
 {
-	rlPushMatrix();
-		rlTranslatef(planet.getGlobalPosition().x, planet.getGlobalPosition().y, planet.getGlobalPosition().z);
-		rlScalef(planet.getRadius(), planet.getRadius(), planet.getRadius());
-		DrawSphereBasic(color);
-	rlPopMatrix();
+	DrawSphere(
+		Vector3{ planet.getGlobalPosition().x, planet.getGlobalPosition().y, planet.getGlobalPosition().z },
+		planet.getRadius(),
+		planet.isSun() ? GOLD : BLUE
+	);
 }
 
 //--------------------------------------------------------------------------------------------

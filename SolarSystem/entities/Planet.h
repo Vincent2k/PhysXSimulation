@@ -17,14 +17,16 @@ private:
 	PxRigidDynamic* rBody;
 	PlanetConfigurations configurations;
 	float radius = 1.0f;
+	bool sun = false;
 
 public:
-	Planet(PxRigidDynamic* rBody, float radius)
+	Planet(PxRigidDynamic* rBody, float radius, bool isSun)
 	{
 		this->rBody = rBody;
 		this->rBody->setMass(0);
 		this->configurations.mass = 0;
 		this->radius = radius;
+		this->sun = isSun;
 	}
 
 	const PlanetConfigurations getConfigurations()
@@ -61,6 +63,11 @@ public:
 	void setLinearVelocity(PxVec3 velocity)
 	{
 		this->rBody->setLinearVelocity(velocity);
+	}
+
+	bool isSun()
+	{
+		return this->sun;
 	}
 };
 

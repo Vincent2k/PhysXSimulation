@@ -23,7 +23,7 @@ void SolarSystem::addPlanet(int id, PxTransform position, PxReal radius, bool is
 
 	this->scene->addActor(*dynamic);
 
-	auto planet = Planet(dynamic, radius, isSun);
+	auto planet = Planet(dynamic, id, radius, isSun);
 	this->planets.insert(std::pair{ id, planet });
 	this->appliedForcesByPlanet.insert(std::pair{ id, std::vector<PxVec3>{} });
 }

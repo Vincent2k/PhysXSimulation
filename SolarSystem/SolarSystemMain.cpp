@@ -11,6 +11,8 @@
 #include "rlgl.h"
 #include <math.h>
 #include "utils/vectorutils.h"
+#include <map>
+#include "graphics/ModelProvider.h"
 
 void DrawPlanet(Planet planet);
 
@@ -19,6 +21,7 @@ using namespace std;
 
 static SolarSystem* solarSystem;
 static bool paused = true;
+static ModelProvider modelProvider;
 
 void stepPhysics(bool interactive)
 {
@@ -33,7 +36,7 @@ void initSolarSystem()
 	solarSystem = Factory::CreateSolarSystem();
 
 	// Suns
-	solarSystem->addPlanet(2000, PxTransform(PxVec3(0, 0, 0)), 5, true);
+	solarSystem->addPlanet(2000, PxTransform(PxVec3(0, 0, 0)), 5.0f, true);
 
 	solarSystem->setPlanetMass(2000, 5000);
 }
@@ -123,6 +126,9 @@ int main()
 			camera.position = Vector3{ camera.position.x + (xDiff * -cameraSpeed), camera.position.y + (yDiff * -cameraSpeed), camera.position.z + (zDiff * -cameraSpeed) };
 		}
 
+		if (IsKeyPressed(KEY_Z)) camera.target = Vector3{ 0.0f, 0.0f, 0.0f };
+		if (IsKeyPressed(KEY_SPACE)) paused = !paused;
+
 		if (IsKeyPressed(KEY_F))
 		{
 			onAddPlanet(camera.position);
@@ -139,9 +145,6 @@ int main()
 		{
 			camera.target = previousCameraTarget;
 		}
-		
-		if (IsKeyPressed(KEY_Z)) camera.target = Vector3{ 0.0f, 0.0f, 0.0f };
-		if (IsKeyPressed(KEY_SPACE)) paused = !paused;
 	
 		BeginDrawing();
 
@@ -169,6 +172,8 @@ int main()
 
     CloseWindow();
 
+	modelProvider.unloadAll();
+	
 	Factory::ReleaseSolarSystem(solarSystem);
 
 	return 0;
@@ -177,9 +182,16 @@ int main()
 
 void DrawPlanet(Planet planet)
 {
-	DrawSphere(
-		Vector3{ planet.getGlobalPosition().x, planet.getGlobalPosition().y, planet.getGlobalPosition().z },
-		planet.getRadius(),
-		planet.isSun() ? GOLD : BLUE
-	);
+	Model model;
+
+	if (planet.isSun())
+	{
+		model = modelProvider.loadSun(planet.getId(), planet.getRadius());
+	}
+	else 
+	{
+		model = modelProvider.loadPlanet(planet.getId(), planet.getRadius());
+	}
+
+	DrawModel(model, utils::toVector3(planet.getGlobalPosition()), 1.0f, WHITE);
 }

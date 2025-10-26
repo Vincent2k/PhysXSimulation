@@ -18,15 +18,17 @@ private:
 	PlanetConfigurations configurations;
 	float radius = 1.0f;
 	bool sun = false;
+	int id;
 
 public:
-	Planet(PxRigidDynamic* rBody, float radius, bool isSun)
+	Planet(PxRigidDynamic* rBody, int id, float radius, bool isSun)
 	{
 		this->rBody = rBody;
 		this->rBody->setMass(0);
 		this->configurations.mass = 0;
 		this->radius = radius;
 		this->sun = isSun;
+		this->id = id;
 	}
 
 	const PlanetConfigurations getConfigurations()
@@ -68,6 +70,11 @@ public:
 	bool isSun() const
 	{
 		return this->sun;
+	}
+
+	int getId()
+	{
+		return this->id;
 	}
 };
 

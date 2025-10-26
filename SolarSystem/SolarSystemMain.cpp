@@ -10,8 +10,8 @@
 #include "raylib.h"
 #include "rlgl.h"
 #include <math.h>
+#include "utils/vectorutils.h"
 
-void DrawSphereBasic(Color color);
 void DrawPlanet(Planet planet);
 
 using namespace physx;
@@ -33,28 +33,21 @@ void initSolarSystem()
 	solarSystem = Factory::CreateSolarSystem();
 
 	// Suns
-	solarSystem->addPlanet(1, PxTransform(PxVec3(0, 0, 0)), 10, true);
-	solarSystem->addPlanet(2, PxTransform(PxVec3(0, 0, 50)), 10, true);
+	solarSystem->addPlanet(2000, PxTransform(PxVec3(0, 0, 0)), 5, true);
 
-	solarSystem->addPlanet(3, PxTransform(PxVec3(0, 30, 30)), 2);
-	solarSystem->addPlanet(4, PxTransform(PxVec3(20, -30, -40)), 2);
-	solarSystem->addPlanet(5, PxTransform(PxVec3(0, -30, 40)), 2);
-	solarSystem->addPlanet(6, PxTransform(PxVec3(0, 30, -40)), 2);
-	solarSystem->addPlanet(7, PxTransform(PxVec3(20, -10, 60)), 2);
-	solarSystem->addPlanet(8, PxTransform(PxVec3(30, 50, -25)), 2);
-
-	solarSystem->setPlanetMass(1, 500000);
-	solarSystem->setPlanetMass(2, 5000000);
-	solarSystem->setPlanetMass(3, 30);
-	solarSystem->setPlanetMass(4, 30);
-	solarSystem->setPlanetMass(5, 30);
-	solarSystem->setPlanetMass(6, 30);
-	solarSystem->setPlanetMass(7, 30);
-	solarSystem->setPlanetMass(8, 30);
-
-	solarSystem->setPlanetLinearVelocity(1, PxVec3(0, 0, -20));
-	solarSystem->setPlanetLinearVelocity(2, PxVec3(0, 0, 0));
+	solarSystem->setPlanetMass(2000, 5000);
 }
+
+
+int idCount = 100;
+void onAddPlanet(Vector3 startPosition) 
+{
+	solarSystem->addPlanet(++idCount, PxTransform(utils::toPxVec3(startPosition)), 3);
+}
+
+#define STAR_COUNT 10000
+
+Vector3 stars[STAR_COUNT] = { 0 };
 
 int main()
 {
@@ -83,6 +76,20 @@ int main()
 	bool dragging = false;
 
 	auto planets = solarSystem->getPlanets();
+	auto sun = planets.at(0);
+
+	Vector3 lastPosition = {-1, 0, 0};
+	Vector3 pointToDraw[100];
+	int insertIndex = 0;
+	int insertCount = 0;
+
+	// Setup the stars with a random position
+	for (int i = 0; i < STAR_COUNT; i++)
+	{
+		stars[i].x = GetRandomValue(-300, 300);
+		stars[i].y = GetRandomValue(-300, 300);
+		stars[i].z = GetRandomValue(-300, 300);
+	}
 
     while (!WindowShouldClose())
     {
@@ -116,6 +123,18 @@ int main()
 			camera.position = Vector3{ camera.position.x + (xDiff * -cameraSpeed), camera.position.y + (yDiff * -cameraSpeed), camera.position.z + (zDiff * -cameraSpeed) };
 		}
 
+		if (IsKeyPressed(KEY_F))
+		{
+			onAddPlanet(camera.position);
+			auto planet = solarSystem->getPlanet(idCount);
+
+			auto vel = utils::toPxVec3(camera.target) - utils::toPxVec3(camera.position);
+			vel.normalize();
+			planet->setLinearVelocity(vel * 20);
+			planet->setMass(10);
+			planets.push_back(planet);
+		}
+
 		if (!dragging)
 		{
 			camera.target = previousCameraTarget;
@@ -130,7 +149,12 @@ int main()
 
 		BeginMode3D(camera);
 
-		for (auto planet : planets)
+		for (int i = 0; i < STAR_COUNT; i++)
+		{
+			DrawPoint3D(stars[i], GetRandomValue(0, 1) == 0 ? WHITE : PURPLE);
+		}
+
+		for (auto &planet : planets)
 		{
 			DrawPlanet(*planet);
 		}
@@ -158,49 +182,4 @@ void DrawPlanet(Planet planet)
 		planet.getRadius(),
 		planet.isSun() ? GOLD : BLUE
 	);
-}
-
-//--------------------------------------------------------------------------------------------
-// Module Functions Definition
-//--------------------------------------------------------------------------------------------
-// Draw sphere without any matrix transformation
-// NOTE: Sphere is drawn in world position ( 0, 0, 0 ) with radius 1.0f
-void DrawSphereBasic(Color color)
-{
-	int rings = 10;
-	int slices = 10;
-
-	// Make sure there is enough space in the internal render batch
-	// buffer to store all required vertex, batch is reseted if required
-	rlCheckRenderBatchLimit((rings + 2) * slices * 6);
-
-	rlBegin(RL_TRIANGLES);
-	rlColor4ub(color.r, color.g, color.b, color.a);
-
-	for (int i = 0; i < (rings + 2); i++)
-	{
-		for (int j = 0; j < slices; j++)
-		{
-			rlVertex3f(cosf(DEG2RAD * (270 + (180 / (rings + 1)) * i)) * sinf(DEG2RAD * (j * 360 / slices)),
-				sinf(DEG2RAD * (270 + (180 / (rings + 1)) * i)),
-				cosf(DEG2RAD * (270 + (180 / (rings + 1)) * i)) * cosf(DEG2RAD * (j * 360 / slices)));
-			rlVertex3f(cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))) * sinf(DEG2RAD * ((j + 1) * 360 / slices)),
-				sinf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))),
-				cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))) * cosf(DEG2RAD * ((j + 1) * 360 / slices)));
-			rlVertex3f(cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))) * sinf(DEG2RAD * (j * 360 / slices)),
-				sinf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))),
-				cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))) * cosf(DEG2RAD * (j * 360 / slices)));
-
-			rlVertex3f(cosf(DEG2RAD * (270 + (180 / (rings + 1)) * i)) * sinf(DEG2RAD * (j * 360 / slices)),
-				sinf(DEG2RAD * (270 + (180 / (rings + 1)) * i)),
-				cosf(DEG2RAD * (270 + (180 / (rings + 1)) * i)) * cosf(DEG2RAD * (j * 360 / slices)));
-			rlVertex3f(cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i))) * sinf(DEG2RAD * ((j + 1) * 360 / slices)),
-				sinf(DEG2RAD * (270 + (180 / (rings + 1)) * (i))),
-				cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i))) * cosf(DEG2RAD * ((j + 1) * 360 / slices)));
-			rlVertex3f(cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))) * sinf(DEG2RAD * ((j + 1) * 360 / slices)),
-				sinf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))),
-				cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))) * cosf(DEG2RAD * ((j + 1) * 360 / slices)));
-		}
-	}
-	rlEnd();
 }

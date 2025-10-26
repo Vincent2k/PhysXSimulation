@@ -14,6 +14,7 @@ private:
 	PxPhysics* physics;
 	PxScene* scene;
 	std::map<int, Planet> planets;
+	std::map<int, std::vector<PxVec3>> appliedForcesByPlanet;
 	float gConstant;
 
 	void applyGravitationalForces();
@@ -38,7 +39,7 @@ public:
 	void setPlanetMass(int id, float mass);
 	void setPlanetLinearVelocity(int id, PxVec3 velicity);
 
-	Planet getPlanet(int id);
-	std::vector<const Planet*> getPlanets();
+	Planet* getPlanet(int id);
+	std::vector<Planet*> getPlanets();
 };
 #endif

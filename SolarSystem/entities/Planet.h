@@ -55,7 +55,7 @@ public:
 		return this->radius;
 	}
 
-	PxVec3 getGlobalPosition()
+	PxVec3 getGlobalPosition() const
 	{
 		return this->rBody->getGlobalPose().p;
 	}
@@ -65,7 +65,7 @@ public:
 		this->rBody->setLinearVelocity(velocity);
 	}
 
-	bool isSun()
+	bool isSun() const
 	{
 		return this->sun;
 	}

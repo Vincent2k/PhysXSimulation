@@ -4,8 +4,7 @@
 #include <vector>
 #include <cmath>
 
-
-const float G_CONSTANT = 0.006674f;
+const float G_CONSTANT = 30.6674f;
 
 void SolarSystem::advance()
 {
@@ -26,6 +25,7 @@ void SolarSystem::addPlanet(int id, PxTransform position, PxReal radius, bool is
 
 	auto planet = Planet(dynamic, radius, isSun);
 	this->planets.insert(std::pair{ id, planet });
+	this->appliedForcesByPlanet.insert(std::pair{ id, std::vector<PxVec3>{} });
 }
 
 void SolarSystem::setPlanetMass(int id, float mass)
@@ -71,6 +71,9 @@ void SolarSystem::applyGravitationalForces()
 
 			planet1.applyGravitationalForce(force);
 			planet2.applyGravitationalForce(oppositeforce);
+
+			this->appliedForcesByPlanet.at(*planet1It).push_back(force);
+			this->appliedForcesByPlanet.at(planet2Id).push_back(oppositeforce);
 		}
 
 		if (idsToCalculateWith.size() > 0)
@@ -93,16 +96,16 @@ PxVec3 SolarSystem::calculateForceBtwPlanets(Planet p1, Planet p2)
 	return -force;
 }
 
-Planet SolarSystem::getPlanet(int id)
+Planet* SolarSystem::getPlanet(int id)
 {
-	return this->planets.at(id);
+	return &this->planets.at(id);
 }
 
-std::vector<const Planet*> SolarSystem::getPlanets()
+std::vector<Planet*> SolarSystem::getPlanets()
 {
-	std::vector<const Planet*> planets;
+	std::vector<Planet*> planets;
 
-	for (const auto& planet : this->planets)
+	for (auto& planet : this->planets)
 	{
 		planets.push_back(&planet.second);
 	}

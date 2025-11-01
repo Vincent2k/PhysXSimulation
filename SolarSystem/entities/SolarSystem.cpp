@@ -3,15 +3,19 @@
 #include "Planet.h"
 #include <vector>
 #include <cmath>
+#include "../utils/time.h"
 
 const float G_CONSTANT = 30.6674f;
 
 void SolarSystem::advance()
 {
-	this->applyGravitationalForces();
-
-	this->scene->simulate(1.0f / 60.0f);
-	this->scene->fetchResults(true);
+	auto ELAPSED_TIME_MS(this->applyGravitationalForces(), this->systemStats.elaspseTimeCalculateForcesMs, test)
+	
+	ELAPSED_TIME_MS
+	(
+		this->scene->simulate(1.0f / 60.0f);
+		this->scene->fetchResults(true);,
+	this->systemStats.elaspseTimeStepMs)
 }
 
 void SolarSystem::addPlanet(int id, PxTransform position, PxReal radius, bool isSun)
@@ -111,4 +115,9 @@ std::vector<Planet*> SolarSystem::getPlanets()
 	}
 
 	return planets;
+}
+
+const SystemStats SolarSystem::getStats()
+{
+	return this->systemStats;
 }

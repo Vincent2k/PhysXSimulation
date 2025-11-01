@@ -3,7 +3,22 @@
 #
 
 # Ajoutez une source à l'exécutable de ce projet.
-add_executable (SolarSystem "SolarSystemMain.cpp" "rendering/Rendering.cpp" "factory/SolarSystemFactory.h" "factory/SolarSystemFactory.cpp" "entities/SolarSystem.cpp" "entities/SolarSystem.h" "entities/Planet.h" "utils/vectorutils.h" "utils/vectorutils.cpp" "graphics/TextureProvider.h" "graphics/TextureProvider.cpp" "graphics/ModelProvider.h" "graphics/ModelProvider.cpp")
+add_executable (SolarSystem 
+    "SolarSystemMain.cpp" 
+    "rendering/Rendering.cpp" 
+    "factory/SolarSystemFactory.h" 
+    "factory/SolarSystemFactory.cpp" 
+    "entities/SolarSystem.cpp" 
+    "entities/SolarSystem.h" 
+    "entities/Planet.h" 
+    "utils/vectorutils.h" 
+    "utils/vectorutils.cpp" 
+    "graphics/TextureProvider.h" 
+    "graphics/TextureProvider.cpp" 
+    "graphics/ModelProvider.h" 
+    "graphics/ModelProvider.cpp"
+    "threading/CalculateForceTask.hpp"
+ "utils/time.h")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET SolarSystem PROPERTY CXX_STANDARD 20)

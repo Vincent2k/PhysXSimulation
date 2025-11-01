@@ -8,6 +8,12 @@
 
 using namespace physx;
 
+struct SystemStats
+{
+	long long elaspseTimeStepMs = 0;
+	long long elaspseTimeCalculateForcesMs = 0;
+};
+
 class SolarSystem
 {
 private: 
@@ -16,6 +22,7 @@ private:
 	std::map<int, Planet> planets;
 	std::map<int, std::vector<PxVec3>> appliedForcesByPlanet;
 	float gConstant;
+	SystemStats systemStats;
 
 	void applyGravitationalForces();
 	PxVec3 calculateForceBtwPlanets(Planet p1, Planet p2);
@@ -41,5 +48,6 @@ public:
 
 	Planet* getPlanet(int id);
 	std::vector<Planet*> getPlanets();
+	const SystemStats getStats();
 };
 #endif

@@ -13,6 +13,8 @@
 #include "utils/vectorutils.h"
 #include <map>
 #include "graphics/ModelProvider.h"
+#include <chrono>
+#include "utils/time.h"
 
 void DrawPlanet(Planet planet);
 
@@ -77,6 +79,8 @@ int main()
 
 	int counter = 0;
 	bool dragging = false;
+	bool showPlanet = true;
+	int stepCount = 0;
 
 	auto planets = solarSystem->getPlanets();
 	auto sun = planets.at(0);
@@ -85,6 +89,8 @@ int main()
 	Vector3 pointToDraw[100];
 	int insertIndex = 0;
 	int insertCount = 0;
+
+	long long elapseTimeMillis = 0;
 
 	// Setup the stars with a random position
 	for (int i = 0; i < STAR_COUNT; i++)
@@ -111,7 +117,13 @@ int main()
 			}
 		}
 
-		stepPhysics(false);
+		if (!paused) 
+		{
+			
+			auto ELAPSED_TIME_MS(stepPhysics(false), elapseTimeMillis)
+			stepPhysics(false);
+			stepCount++;
+		}
 		
 		auto previousCameraTarget = camera.target;
 		auto previousCameraPosition = camera.position;
@@ -128,17 +140,21 @@ int main()
 
 		if (IsKeyPressed(KEY_Z)) camera.target = Vector3{ 0.0f, 0.0f, 0.0f };
 		if (IsKeyPressed(KEY_SPACE)) paused = !paused;
+		if (IsKeyPressed(KEY_V)) showPlanet = !showPlanet;
 
 		if (IsKeyPressed(KEY_F))
 		{
-			onAddPlanet(camera.position);
-			auto planet = solarSystem->getPlanet(idCount);
+			for (int i = 0; i < 100; i++) 
+			{
+				onAddPlanet(Vector3{ camera.position.x + i * 50, camera.position.y + i * 50, camera.position.z + i * 50 });
+				auto planet = solarSystem->getPlanet(idCount);
 
-			auto vel = utils::toPxVec3(camera.target) - utils::toPxVec3(camera.position);
-			vel.normalize();
-			planet->setLinearVelocity(vel * 20);
-			planet->setMass(10);
-			planets.push_back(planet);
+				auto vel = utils::toPxVec3(camera.target) - utils::toPxVec3(camera.position);
+				vel.normalize();
+				planet->setLinearVelocity(vel * 20);
+				planet->setMass(10);
+				planets.push_back(planet);
+			}
 		}
 
 		if (!dragging)
@@ -150,20 +166,31 @@ int main()
 
 		ClearBackground(BLACK);
 
-		BeginMode3D(camera);
-
-		for (int i = 0; i < STAR_COUNT; i++)
+		if (showPlanet)
 		{
-			DrawPoint3D(stars[i], GetRandomValue(0, 1) == 0 ? WHITE : PURPLE);
+			BeginMode3D(camera);
+
+			for (int i = 0; i < STAR_COUNT; i++)
+			{
+				DrawPoint3D(stars[i], GetRandomValue(0, 1) == 0 ? WHITE : PURPLE);
+			}
+
+			for (auto& planet : planets)
+			{
+				DrawPlanet(*planet);
+			}
+
+			EndMode3D();
 		}
-
-		for (auto &planet : planets)
-		{
-			DrawPlanet(*planet);
+		else
+		{	                                                                                                                                                                                  
+			DrawText(TextFormat("Planet count: %d", planets.size()), 50, 100, 50, GRAY);
+			DrawText(TextFormat("Step count: %d", stepCount), 50, 150, 50, GRAY);
+			DrawText(TextFormat("Elapsed Time: %d [ms]", elapseTimeMillis), 50, 250, 50, GRAY);
+			DrawText(TextFormat("Elapsed Time (step): %d [ms]", solarSystem->getStats().elaspseTimeStepMs), 50, 300, 50, GRAY);
+			DrawText(TextFormat("Elapsed Time (calculate forces): %d [ms]", solarSystem->getStats().elaspseTimeCalculateForcesMs), 50, 350, 50, GRAY);
 		}
-
-		EndMode3D();
-
+		
 		DrawText("EARTH ORBITING AROUND THE SUN!", 400, 10, 20, MAROON);
 		DrawFPS(10, 10);
 
